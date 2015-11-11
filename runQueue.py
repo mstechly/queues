@@ -21,12 +21,12 @@ class Sim():
         self.verbose = verbose
 
         self.lastQueue =  Queue("OutputQueue",None)
-        plik=csv.reader(open("test.csv","r"))
+        networkFile=csv.reader(open("test.csv","r"))
 
         self.listOfQueues=[]
         self.listOfServers=[]
 
-        for row in plik:
+        for row in networkFile:
             if row[0]=='Q':
                 self.listOfQueues.append(Queue("Q"+row[1],self.getServers(row[3])))
             else:
@@ -38,14 +38,22 @@ class Sim():
         self.firstQueue = self.listOfQueues[0]
         self.lastID = -1
 
-        route1 = [self.listOfServers[0], self.listOfServers[2]]
-        route2 = [self.listOfServers[1], self.listOfServers[2]]
+        self.routes=[]
+        routesFile=csv.reader(open("routes.csv","r"))
+        for row in routesFile:
+            self.routes.append(self.getServers(row[0]))
 
         for i in range(30):
-            if i%2==0:
-                self.newCustomer(route1)
-            else:
-                self.newCustomer(route2)
+            self.newCustomer(self.routes[i%len(self.routes)])
+
+        # route1 = [self.listOfServers[0], self.listOfServers[2]]
+        # route2 = [self.listOfServers[1], self.listOfServers[2]]
+
+        # for i in range(5):
+        #     if i%2==0:
+        #         self.newCustomer(route1)
+        #     else:
+        #         self.newCustomer(route2)
 
 
     def getQueues(self,list):
@@ -93,7 +101,7 @@ class Sim():
 
         while t < self.T:
             t += 1
-            self.verbose=False
+            # self.verbose=False
             if self.verbose:
                 print "-------------------"
 
@@ -111,7 +119,10 @@ class Sim():
                 if self.verbose:
                     server.printServerState()
 
-
+            customerList=[]
+            for customer in self.customers:
+                customerList.append(customer.currentPlace)
+            # print customerList
 
             # self.lastQueue.printQueueState()
             # self.printProgressToScreen(t)
@@ -155,7 +166,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="A simulation of a queue.")
     parser.add_argument('-T', action="store", dest="T", type=float, help='The overall simulation time', default=100)
     parser.add_argument('-l', action="store", dest="lambd", type=float, help='Lambda', default=2)
-    parser.add_argument('-v', action="store", dest="verbose", type=bool, help='Verbose', default=False)
+    parser.add_argument('-v', action="store", dest="verbose", type=int, help='Verbose', default=0)
 
 
     inputs = parser.parse_args()

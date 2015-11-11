@@ -31,6 +31,7 @@ class Customer():
         self.historyEventAsKey = {}
         self.route = route
         self.routePosition = 0
+        self.currentPlace = "In"
 
     def updateHistory(self, t, event):
         self.historyTAsKey[t] = event
@@ -54,6 +55,7 @@ class Queue():
     def sendCustomerToServer(self, index, targetServer):
         self.customers[index].isServed=True
         self.customers[index].routePosition +=1
+        self.customers[index].currentPlace = targetServer.serverID
         targetServer.startService(self.customers[index])
 
     def maintenance(self, t):
@@ -66,8 +68,6 @@ class Queue():
                 self.historyCustomerAsKey[person.customerID] = 1
 
         self.historyTAsKey[t] = self.customers
-
-#TODO: change to FIFO
 
         customersToDrop =[]
 
@@ -105,6 +105,7 @@ class Server():
     def endService(self, index):
         #TODO: procedura losowania kolejki
         targetQueue = self.outgoingQueues[0]
+        self.customers[index].currentPlace = targetQueue.queueID
 
         targetQueue.addCustomer(self.customers[index])
         self.customers.pop(index)
