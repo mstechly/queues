@@ -2,6 +2,7 @@ from __future__ import division  # Simplify division
 from turtle import Turtle, mainloop, setworldcoordinates  # Commands needed from Turtle
 import random
 import sys
+import copy
 
 def getRandomExpTime(mu):
     result = int(random.expovariate(1/mu))
@@ -20,7 +21,7 @@ def mean(lst):
 
 class Customer():
 
-    def __init__(self, customerID):
+    def __init__(self, customerID, route):
         # Turtle.__init__(self)  # Initialise all base Turtle attributes
         self.queue = None
         self.server = None
@@ -28,6 +29,8 @@ class Customer():
         self.isServed = False
         self.historyTAsKey = {}
         self.historyEventAsKey = {}
+        self.route = route
+        self.routePosition = 0
 
     def updateHistory(self, t, event):
         self.historyTAsKey[t] = event
@@ -50,9 +53,8 @@ class Queue():
 
     def sendCustomerToServer(self, index, targetServer):
         self.customers[index].isServed=True
-
+        self.customers[index].routePosition +=1
         targetServer.startService(self.customers[index])
-        self.customers.pop(index)
 
     def maintenance(self, t):
 
@@ -66,9 +68,19 @@ class Queue():
         self.historyTAsKey[t] = self.customers
 
 #TODO: change to FIFO
-        for server in self.connectedServers:
-            if server.checkIfFree() and len(self.customers)!=0:
-                self.sendCustomerToServer(-1, server)
+
+        customersToDrop =[]
+
+        for i in range(len(self.customers)):
+            currentCustomer = self.customers[i]
+            targetServer = currentCustomer.route[currentCustomer.routePosition]
+            if targetServer.checkIfFree():
+                self.sendCustomerToServer(i, targetServer)
+                customersToDrop.append(i)
+
+
+        for i in range(len(customersToDrop)-1,-1,-1):
+            self.customers.pop(customersToDrop[i])
 
 
     def printQueueState(self):
@@ -90,7 +102,6 @@ class Server():
     def startService(self,customer):
         self.customers.append(customer)
         self.timeLeft = getRandomExpTime(self.mu)
-
 
     def endService(self, index):
         #TODO: procedura losowania kolejki
