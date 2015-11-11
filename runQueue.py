@@ -13,16 +13,17 @@ from queueLibrary import getPoissonProb
 
 class Sim():
 
-    def __init__(self, T):
+    def __init__(self, T, lambd):
         self.T = T
         self.customers = []
+        self.lambd = lambd
 
-        OutputQueue = Queue("Q3",1,None)
-        Server3 = Server("S3", 2, [OutputQueue])
-        Queue2 = Queue("Q2", 3, [Server3])
+        OutputQueue = Queue("Q3",None)
+        Server3 = Server("S3", 5, [OutputQueue])
+        Queue2 = Queue("Q2", [Server3])
         Server2 = Server("S2", 5, [Queue2])
         Server1 = Server ("S1", 5, [Queue2])
-        Queue1 = Queue("Q1",2,[Server1, Server2])
+        Queue1 = Queue("Q1",[Server1, Server2])
 
         self.firstQueue = Queue1
         self.lastQueue = OutputQueue
@@ -47,19 +48,20 @@ class Sim():
 
         while t < self.T:
             t += 1
-
+            print "-------------------"
             for server in self.listOfServers:
                 server.maintenance(t)
-                # server.printServerState()
+                server.printServerState()
 
             for queue in self.listOfQueues:
                 queue.maintenance(t)
-                # queue.printQueueState()
+                queue.printQueueState()
 
             # self.lastQueue.printQueueState()
             # self.printProgressToScreen(t)
 
-            if random.random()<getPoissonProb(self.firstQueue.lambd):
+            if random.random()<getPoissonProb(self.lambd):
+                print "New Customer!"
                 self.newCustomer()
                 nextplayer = self.customers[self.lastID]
                 self.firstQueue.addCustomer(nextplayer)
@@ -97,8 +99,12 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description="A simulation of a queue.")
     parser.add_argument('-T', action="store", dest="T", type=float, help='The overall simulation time', default=100)
+    parser.add_argument('-l', action="store", dest="lambd", type=float, help='Lambda', default=2)
+
+
     inputs = parser.parse_args()
     T = inputs.T
+    l = inputs.lambd
 
-    q = Sim(T)
+    q = Sim(T, 2)
     q.run()

@@ -38,10 +38,9 @@ class Customer():
 
 
 class Queue():
-    def __init__(self, queueID, lambd, connectedServers):
+    def __init__(self, queueID, connectedServers):
         self.customers = []
         self.queueID = queueID
-        self.lambd = lambd
         self.connectedServers = connectedServers
         self.historyTAsKey = {}
         self.historyCustomerAsKey = {}
@@ -123,7 +122,8 @@ class Server():
 
 
         if len(self.customers)!=0:
-            self.timeLeft=self.timeLeft-1
+            if self.timeLeft!=0:
+                self.timeLeft=self.timeLeft-1
             if self.timeLeft<=0:
                 self.endService(0)
 
