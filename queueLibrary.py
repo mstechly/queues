@@ -14,9 +14,6 @@ def mean(lst):
         return sum(lst) / len(lst)
     return False
 
-def movingaverage(lst):
-    return [mean(lst[:k]) for k in range(1 , len(lst) + 1)]
-
 
 class Customer():
 
@@ -44,9 +41,6 @@ class Queue():
         self.connectedServers = connectedServers
         self.historyTAsKey = {}
         self.historyCustomerAsKey = {}
-
-    def __len__(self):
-        return len(self.customers)
 
     def addCustomer(self, customer):
         self.customers.append(customer)
@@ -88,11 +82,6 @@ class Server():
         self.historyCustomerAsKey = {}
 
 
-    def __iter__(self):
-        return iter(self.customers)
-
-    def __len__(self):
-        return len(self.customers)
 
     def startService(self,customer):
         self.customers.append(customer)
