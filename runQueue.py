@@ -19,9 +19,9 @@ class Sim():
         self.lambd = lambd
 
         OutputQueue = Queue("Q3",None)
-        Server3 = Server("S3", 5, [OutputQueue])
+        Server3 = Server("S3", 2, [OutputQueue])
         Queue2 = Queue("Q2", [Server3])
-        Server2 = Server("S2", 5, [Queue2])
+        Server2 = Server("S2", 4, [Queue2])
         Server1 = Server ("S1", 5, [Queue2])
         Queue1 = Queue("Q1",[Server1, Server2])
 
@@ -48,25 +48,27 @@ class Sim():
 
         while t < self.T:
             t += 1
-            print "-------------------"
-            for server in self.listOfServers:
-                server.maintenance(t)
-                server.printServerState()
+            # print "-------------------"
 
             for queue in self.listOfQueues:
                 queue.maintenance(t)
-                queue.printQueueState()
+                # queue.printQueueState()
+
+            for server in self.listOfServers:
+                server.maintenance(t)
+                # server.printServerState()
+
+
 
             # self.lastQueue.printQueueState()
             # self.printProgressToScreen(t)
 
             if random.random()<getPoissonProb(self.lambd):
-                print "New Customer!"
                 self.newCustomer()
                 nextplayer = self.customers[self.lastID]
                 self.firstQueue.addCustomer(nextplayer)
 
-            time.sleep(0.01)
+            # time.sleep(0.01)
 
         # for customer in self.lastQueue.customers:
         #     customer.printHistory()
@@ -106,5 +108,5 @@ if __name__ == '__main__':
     T = inputs.T
     l = inputs.lambd
 
-    q = Sim(T, 2)
+    q = Sim(T, 4)
     q.run()

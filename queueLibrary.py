@@ -4,7 +4,10 @@ import random
 import sys
 
 def getRandomExpTime(mu):
-    return int(random.expovariate(1/mu))
+    result = int(random.expovariate(1/mu))
+    if result==0:
+        result = 1
+    return result
 
 def getPoissonProb(lambd):
     return 1 - 2.7183**(-1/lambd)
@@ -62,6 +65,7 @@ class Queue():
 
         self.historyTAsKey[t] = self.customers
 
+#TODO: change to FIFO
         for server in self.connectedServers:
             if server.checkIfFree() and len(self.customers)!=0:
                 self.sendCustomerToServer(-1, server)
