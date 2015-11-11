@@ -4,6 +4,7 @@ from turtle import Turtle, mainloop, setworldcoordinates  # Commands needed from
 import sys
 import time
 import random
+import csv
 
 from queueLibrary import Customer
 from queueLibrary import Queue
@@ -19,28 +20,58 @@ class Sim():
         self.lambd = lambd
         self.verbose = verbose
 
-        OutputQueue = Queue("Q3",None)
-        Server3 = Server("S3", 2, [OutputQueue])
-        Queue2 = Queue("Q2", [Server3])
-        Server2 = Server("S2", 4, [Queue2])
-        Server1 = Server ("S1", 5, [Queue2])
-        Queue1 = Queue("Q1",[Server1, Server2])
+        self.lastQueue =  Queue("OutputQueue",None)
+        plik=csv.reader(open("test.csv","r"))
 
-        self.firstQueue = Queue1
-        self.lastQueue = OutputQueue
+        self.listOfQueues=[]
+        self.listOfServers=[]
+
+        for row in plik:
+            if row[0]=='Q':
+                self.listOfQueues.append(Queue("Q"+row[1],self.getServers(row[3])))
+            else:
+                self.listOfServers.append(Server("S"+row[1],int(row[2]),self.getQueues(row[3])))
+
+        self.listOfQueues=sorted(self.listOfQueues,key=lambda Queue: Queue.queueID)
+        self.listOfServers=sorted(self.listOfServers,key=lambda Server: Server.serverID)
+
+        self.firstQueue = self.listOfQueues[0]
         self.lastID = -1
-        self.listOfQueues = [Queue1, Queue2]
-        self.listOfServers = [Server1, Server2, Server3]
 
-        route1 = [Server1, Server3]
-        route2 = [Server2, Server3]
+        route1 = [self.listOfServers[0], self.listOfServers[2]]
+        route2 = [self.listOfServers[1], self.listOfServers[2]]
 
         for i in range(30):
             if i%2==0:
                 self.newCustomer(route1)
             else:
                 self.newCustomer(route2)
-        # self.newCustomer(route2)
+
+
+    def getQueues(self,list):
+        list2=[]
+        list=list.split(';')
+        print list
+        if list[0]=='-1':
+            print("Queue last"+self.lastQueue.queueID)
+            return [self.lastQueue]
+        else:
+            for i in list:
+             for queue in self.listOfQueues:
+                if queue.queueID=="Q"+i:
+                    print("Queue "+queue.queueID)
+                    list2.append(queue)
+        return list2
+
+    def getServers(self,list):
+        list2=[]
+        list=list.split(';')
+        for i in list:
+            for server in self.listOfServers:
+                if server.serverID=="S"+i:
+                    list2.append(server)
+                    print("Server "+server.serverID)
+        return list2
 
     def newCustomer(self, route):
         self.lastID += 1

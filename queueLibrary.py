@@ -78,7 +78,6 @@ class Queue():
                 self.sendCustomerToServer(i, targetServer)
                 customersToDrop.append(i)
 
-
         for i in range(len(customersToDrop)-1,-1,-1):
             self.customers.pop(customersToDrop[i])
 
