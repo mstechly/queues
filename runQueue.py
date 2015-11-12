@@ -20,7 +20,7 @@ class Sim():
         self.lambd = lambd
         self.verbose = verbose
 
-        self.lastQueue =  Queue("OutputQueue",None)
+        self.lastQueue =  Queue("Out",None)
         networkFile=csv.reader(open("test.csv","r"))
 
         self.listOfQueues=[]
@@ -59,15 +59,15 @@ class Sim():
     def getQueues(self,list):
         list2=[]
         list=list.split(';')
-        print list
+        # print list
         if list[0]=='-1':
-            print("Queue last"+self.lastQueue.queueID)
+            # print("Queue last"+self.lastQueue.queueID)
             return [self.lastQueue]
         else:
             for i in list:
              for queue in self.listOfQueues:
                 if queue.queueID=="Q"+i:
-                    print("Queue "+queue.queueID)
+                    # print("Queue "+queue.queueID)
                     list2.append(queue)
         return list2
 
@@ -78,7 +78,7 @@ class Sim():
             for server in self.listOfServers:
                 if server.serverID=="S"+i:
                     list2.append(server)
-                    print("Server "+server.serverID)
+                    # print("Server "+server.serverID)
         return list2
 
     def newCustomer(self, route):
@@ -89,6 +89,11 @@ class Sim():
     def printProgressToScreen(self, t):
         sys.stdout.write('\r%.2f%% of simulation completed (t=%s of %s)\n' % (100 * t/self.T, t, self.T))
         sys.stdout.flush()
+
+    def printCustomersForKubis(self):
+        for customer in self.customers:
+            print "{"+str(customer.customerID)+","+str(customer.currentPlace)+"},",
+        print "\n"
 
     def run(self):
         t = 0
@@ -119,18 +124,8 @@ class Sim():
                 if self.verbose:
                     server.printServerState()
 
-            customerList=[]
-            for customer in self.customers:
-                customerList.append(customer.currentPlace)
-            # print customerList
 
-            # self.lastQueue.printQueueState()
-            # self.printProgressToScreen(t)
-
-            # if random.random()<getPoissonProb(self.lambd):
-            #     self.newCustomer()
-            #     nextplayer = self.customers[self.lastID]
-            #     self.firstQueue.addCustomer(nextplayer)
+            self.printCustomersForKubis()
 
             # time.sleep(0.01)
 

@@ -132,6 +132,5 @@ class Server():
                 self.endService(0)
 
 
-
     def printServerState(self):
         sys.stdout.write('%s: time left in server %s \n' % (self.timeLeft, self.serverID))
