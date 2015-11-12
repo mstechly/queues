@@ -14,11 +14,12 @@ from queueLibrary import getPoissonProb
 
 class Sim():
 
-    def __init__(self, T, lambd, verbose):
+    def __init__(self, T, lambd, numberOfCustomers, verbose):
         self.T = T
         self.customers = []
         self.lambd = lambd
         self.verbose = verbose
+        self.numberOfCustomers = numberOfCustomers
 
         self.lastQueue =  Queue("Out",None)
         networkFile=csv.reader(open("test.csv","r"))
@@ -43,7 +44,7 @@ class Sim():
         for row in routesFile:
             self.routes.append(self.getServers(row[0]))
 
-        for i in range(30):
+        for i in range(self.numberOfCustomers):
             self.newCustomer(self.routes[i%len(self.routes)])
 
         # route1 = [self.listOfServers[0], self.listOfServers[2]]
@@ -124,28 +125,28 @@ class Sim():
                 if self.verbose:
                     server.printServerState()
 
-
-            self.printCustomersForKubis()
+            # self.printCustomersForKubis()
 
             # time.sleep(0.01)
 
         # for customer in self.lastQueue.customers:
         #     customer.printHistory()
 
-        # self.getStatistics()
+        self.getStatistics()
 
     def getStatistics(self):
         for queue in self.listOfQueues:
             history = queue.historyCustomerAsKey
-            # print history
-            averageWaitingTime = sum(history.values())/len(history)
-            print "average time in queue ",queue.queueID, " : ", averageWaitingTime
+            if len(history)>0:
+                averageWaitingTime = sum(history.values())/len(history)
+                print "average time in queue ",queue.queueID, " : ", averageWaitingTime
 
         for server in self.listOfServers:
             history = server.historyCustomerAsKey
-            # print history
-            averageServiceTime = sum(history.values())/len(history)
-            print "average service time for server ",server.serverID, " : ", averageServiceTime
+            if len(history)>0:
+                averageServiceTime = sum(history.values())/len(history)
+                print "serverID: ", server.serverID, " mu: ", server.mu
+                print "average service time for server ",server.serverID, " : ", averageServiceTime
 
         totalTimeInSystem = 0
         for customer in self.customers:
@@ -161,13 +162,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="A simulation of a queue.")
     parser.add_argument('-T', action="store", dest="T", type=float, help='The overall simulation time', default=100)
     parser.add_argument('-l', action="store", dest="lambd", type=float, help='Lambda', default=2)
+    parser.add_argument('-n', action="store", dest="numberOfCustomers", type=int, help='Number of customers', default=10)
     parser.add_argument('-v', action="store", dest="verbose", type=int, help='Verbose', default=0)
+
 
 
     inputs = parser.parse_args()
     T = inputs.T
     l = inputs.lambd
     v = inputs.verbose
+    n = inputs.numberOfCustomers
 
-    q = Sim(T, 4, v)
+    q = Sim(T, 4, n, v)
     q.run()
