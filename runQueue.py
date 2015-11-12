@@ -14,12 +14,15 @@ from queueLibrary import getPoissonProb
 
 class Sim():
 
-    def __init__(self, T, lambd, numberOfCustomers, verbose):
+    def __init__(self, T, lambd, numberOfCustomers, verbose, cockroachSimulation):
         self.T = T
         self.customers = []
         self.lambd = lambd
         self.verbose = verbose
         self.numberOfCustomers = numberOfCustomers
+        self.cockroachSimulation = cockroachSimulation
+        if self.cockroachSimulation==1:
+            self.verbose = False
 
         self.lastQueue =  Queue("Out",None)
         networkFile=csv.reader(open("test.csv","r"))
@@ -55,7 +58,6 @@ class Sim():
         #         self.newCustomer(route1)
         #     else:
         #         self.newCustomer(route2)
-
 
     def getQueues(self,list):
         list2=[]
@@ -98,9 +100,6 @@ class Sim():
 
     def run(self):
         t = 0
-        # self.newCustomer()  # Create a new player
-        # nextplayer = self.customers[self.lastID]
-        # self.firstQueue.addCustomer(nextplayer)
 
         for customer in self.customers:
             self.firstQueue.addCustomer(customer)
@@ -125,14 +124,18 @@ class Sim():
                 if self.verbose:
                     server.printServerState()
 
-            # self.printCustomersForKubis()
+
+            # if self.cockroachSimulation==1:
+                # self.printCustomersForKubis()
 
             # time.sleep(0.01)
 
         # for customer in self.lastQueue.customers:
         #     customer.printHistory()
-
-        self.getStatistics()
+        if self.cockroachSimulation==0:
+            self.getStatistics()
+        else:
+            return self.getCockroachOutput()
 
     def getStatistics(self):
         for queue in self.listOfQueues:
@@ -154,24 +157,36 @@ class Sim():
         averageTimeInSystem = totalTimeInSystem/len(self.customers)
         print "average time in system: ", averageTimeInSystem
 
-
+    def getCockroachOutput(self):
+        totalTimeInSystem = 0
+        for customer in self.customers:
+            totalTimeInSystem += len(customer.historyTAsKey)
+        averageTimeInSystem = totalTimeInSystem/len(self.customers)
+        return averageTimeInSystem
 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description="A simulation of a queue.")
     parser.add_argument('-T', action="store", dest="T", type=float, help='The overall simulation time', default=100)
-    parser.add_argument('-l', action="store", dest="lambd", type=float, help='Lambda', default=2)
+    parser.add_argument('-l', action="store", dest="lambd", type=float, help='Lambda', default=4)
     parser.add_argument('-n', action="store", dest="numberOfCustomers", type=int, help='Number of customers', default=10)
     parser.add_argument('-v', action="store", dest="verbose", type=int, help='Verbose', default=0)
-
-
+    parser.add_argument('-s', action="store", dest="cockroachSimulation", type=int, help='Is it run for the cockroach simulation.', default=0)
 
     inputs = parser.parse_args()
     T = inputs.T
     l = inputs.lambd
     v = inputs.verbose
     n = inputs.numberOfCustomers
+    s = inputs.cockroachSimulation
 
-    q = Sim(T, 4, n, v)
-    q.run()
+    if s==0:
+        q = Sim(T, l, n, v, s)
+        q.run()
+
+    if s==1:
+        for i in range(5):
+            q = Sim(T, l, n, v, s)
+            oneSim=q.run()
+            print oneSim
