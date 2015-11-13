@@ -13,18 +13,16 @@ from queueLibrary import getPoissonProb
 
 class Sim():
 
-    def __init__(self, T, lambd, numberOfCustomers, verbose, cockroachSimulation):
+    def __init__(self, T, verbose, cockroachSimulation):
         self.T = T
         self.customers = []
-        self.lambd = lambd
         self.verbose = verbose
-        self.numberOfCustomers = numberOfCustomers
         self.cockroachSimulation = cockroachSimulation
         if self.cockroachSimulation==1:
             self.verbose = False
 
         self.lastQueue =  Queue("Out",None)
-        networkFile=csv.reader(open("test.csv","r"))
+        networkFile=csv.reader(open("networkStructure.csv","r"))
 
         self.listOfQueues=[]
         self.listOfServers=[]
@@ -46,8 +44,8 @@ class Sim():
         for row in routesFile:
             self.routes.append(self.getServers(row[0]))
 
-        for i in range(self.numberOfCustomers):
-            self.newCustomer(self.routes[i%len(self.routes)])
+        for route in self.routes:
+            self.newCustomer(route)
 
         # route1 = [self.listOfServers[0], self.listOfServers[2]]
         # route2 = [self.listOfServers[1], self.listOfServers[2]]
@@ -107,7 +105,7 @@ class Sim():
             t += 1
             # self.verbose=False
             if self.verbose:
-                print "-------------------"
+                print "------ t=",t, "---------"
 
             for queue in self.listOfQueues:
                 if self.verbose:
