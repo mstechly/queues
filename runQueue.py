@@ -1,22 +1,62 @@
 from __future__ import division  # Simplify division
-
 from simLibrary import Sim
+import csv
+import random
 
 numbersOfIterationsForOneCockroach = 100
 timeOfSimulationForOneCockroach = 200
 
+class Cockroach():
 
-def assessOneCockroach(sequenceMatrix):
-    cockroachFit = 0
-    for i in range(numbersOfIterationsForOneCockroach):
-        q = Sim(timeOfSimulationForOneCockroach, 0, 1, sequenceMatrix)
-        simResult=q.run()
-        cockroachFit += simResult
+    def __init__(self, size):
+        self.size = size
+        singleRow = [0]*self.size
+        self.matrix = [singleRow]*self.size
+        for i in range(self.size):
+            for j in range(self.size):
+                self.matrix[i][j]=random.random()
+        self.value=-1
+        self.sequence = range(self.size)
 
-    return cockroachFit/numbersOfIterationsForOneCockroach
+    def assessOneCockroach(self):
+        self.value = 0
+        self.sequence = self.getSequence()
+        for i in range(numbersOfIterationsForOneCockroach):
+            q = Sim(timeOfSimulationForOneCockroach, 0, 1, self.sequence)
+            simResult=q.run()
+            self.value += simResult
 
-def initializeCSO():
-    a=1
+        return cockroachFit/numbersOfIterationsForOneCockroach
+
+    def getSequence(self):
+        sequence = []
+        singleRow = [0]*self.size
+        matrixCopy = [singleRow]*self.size
+        for i in range(self.size):
+            for j in range(self.size):
+                matrixCopy[i][j]=self.matrix[i][j]
+
+        for row in matrixCopy:
+            m=max(row)
+            maxPos=[i for i,j in enumerate(row) if j==m]
+            maxPos=maxPos[0]
+            sequence.append(maxPos)
+            for i in range(self.size):
+                matrixCopy[i][maxPos]=0
+        return sequence
+
+def initializeCSO(numberOfCockroaches, numberOfIterations):
+    routesFile=csv.reader(open("routes.csv","r"))
+    numberOfCustomers=0
+
+    for row in routesFile:
+        numberOfCustomers+=1
+    print "customers:", numberOfCustomers
+
+    listOfCockroaches=[]
+    for i in range(numberOfCustomers):
+        listOfCockroaches.append(Cockroach())
+
 
 if __name__ == '__main__':
     import argparse
@@ -31,6 +71,7 @@ if __name__ == '__main__':
     v = inputs.verbose
     s = inputs.cockroachSimulation
     p = inputs.permutation
+    # initializeCSO(1,2)
 
     if s==0:
         q = Sim(T, v, s, p)
