@@ -2,14 +2,17 @@ from __future__ import division  # Simplify division
 from simLibrary import Sim
 import csv
 import random
+from CockroachLibrary import getPermutation
+from CockroachLibrary import numberOfSwaps
 
-numbersOfIterationsForOneCockroach = 100
+numbersOfSimulationsForOneCockroach = 100
 timeOfSimulationForOneCockroach = 200
 
 class Cockroach():
 
     def __init__(self, size):
         self.size = size
+        self.visual = 15
         singleRow = [0]*self.size
         self.matrix = [singleRow]*self.size
         for i in range(self.size):
@@ -18,15 +21,20 @@ class Cockroach():
         self.value=-1
         self.sequence = range(self.size)
 
-    def assessOneCockroach(self):
-        self.value = 0
+    def actualizeCockroach(self):
+        self.asses()
+        self.getSequence()
+
+    def asses(self):
+        cockroachFit = 0
         self.sequence = self.getSequence()
-        for i in range(numbersOfIterationsForOneCockroach):
+        for i in range(numbersOfSimulationsForOneCockroach):
             q = Sim(timeOfSimulationForOneCockroach, 0, 1, self.sequence)
             simResult=q.run()
-            self.value += simResult
+            cockroachFit += simResult
 
-        return cockroachFit/numbersOfIterationsForOneCockroach
+        self.value = cockroachFit/numbersOfSimulationsForOneCockroach
+        return self.value
 
     def getSequence(self):
         sequence = []
@@ -43,7 +51,36 @@ class Cockroach():
             sequence.append(maxPos)
             for i in range(self.size):
                 matrixCopy[i][maxPos]=0
+        self.sequence = sequence
         return sequence
+
+    def calculateDistance(self, secondCockroach):
+        sequence1 = self.sequence
+        sequence2 = secondCockroach.sequence
+        perm = getPermutation(sequence1, sequence2)
+        return numberOfSwaps(perm)
+
+    def checkIfSee(self, secondCockroach):
+        distance = self.calculateDistance(secondCockroach)
+        if distance<= self.visual:
+            return True
+        else:
+            return False
+
+    def moveToward(self, secondCockroach):
+        numberOfSteps = 1
+        targetSequence = secondCockroach.sequence
+        perm = getPermutation(self.sequence, targetSequence)
+        for k in range(self.size):
+            if self.sequence[k]!=targetSequence[k]:
+                elem1 = self.sequence[k]
+                elem2 = targetSequence[k]
+                pos = [i for i,j in enumerate(self.sequence) if j==elem2]
+                pos = pos[0]
+                self.sequence[k] = elem2
+                self.sequence[pos] = elem1
+            break
+        self.asses()
 
 def initializeCSO(numberOfCockroaches, numberOfIterations):
     routesFile=csv.reader(open("routes.csv","r"))
@@ -53,9 +90,64 @@ def initializeCSO(numberOfCockroaches, numberOfIterations):
         numberOfCustomers+=1
     print "customers:", numberOfCustomers
 
-    listOfCockroaches=[]
-    for i in range(numberOfCustomers):
-        listOfCockroaches.append(Cockroach())
+    listOfCockroaches = []
+    listOfValues = [0]*numberOfCockroaches
+    for i in range(numberOfCockroaches):
+        newCockroach = Cockroach(numberOfCustomers)
+        newCockroach.actualizeCockroach()
+        listOfCockroaches.append(newCockroach)
+
+
+    for iterationNumber in range(numberOfIterations):
+        for i in range(numberOfCockroaches):
+            listOfValues[i]=listOfCockroaches[i].value
+
+        bestValue = min(listOfValues)
+        bestCockroachIndex = [i for i,j in enumerate(listOfValues) if j==bestValue]
+        bestCockroachIndex = bestCockroachIndex[0]
+        bestCockroach = listOfCockroaches[bestCockroachIndex]
+
+        for i in range(numberOfCockroaches):
+
+            localBest = listOfCockroaches[i]
+            cockroach1 = listOfCockroaches[i]
+            for j in range(numberOfCockroaches):
+                cockroach2 = listOfCockroaches[j]
+                if i!=j and cockroach1.checkIfSee(cockroach2):
+                    if localBest.value>cockroach2.value:
+                        localBest = cockroach2
+
+            if localBest!=cockroach1:
+                cockroach1.moveToward(localBest)
+                if cockroach1.value<localBest.value:
+                    localBest = cockroach1
+                    for j in range(numberOfCockroaches):
+                        cockroach2 = listOfCockroaches[j]
+                        if i!=j and cockroach1.checkIfSee(cockroach2):
+                            if localBest.value>cockroach2.value:
+                                localBest = cockroach2
+
+            if localBest==cockroach1 and cockroach1!=bestCockroach:
+                if cockroach1.value<bestCockroach.value:
+                    bestCockroach = localBest
+                else:
+                    cockroach1.moveToward(localBest)
+
+        for i in range(numberOfCockroaches):
+
+            randomCockroach = Cockroach(numberOfCustomers)
+            newCockroach.actualizeCockroach()
+            givenCockroach = listOfCockroaches[i]
+            givenCockroach.moveToward(randomCockroach)
+            if givenCockroach.value<bestCockroach.value:
+                bestCockroach = givenCockroach
+
+
+        print 'Iteration no.', iterationNumber
+        print "Best Value: ", bestCockroach.value
+
+
+
 
 
 if __name__ == '__main__':
@@ -71,14 +163,11 @@ if __name__ == '__main__':
     v = inputs.verbose
     s = inputs.cockroachSimulation
     p = inputs.permutation
-    # initializeCSO(1,2)
 
-    if s==0:
-        q = Sim(T, v, s, p)
-        q.run()
+    # if s==0:
+    #     q = Sim(T, v, s, p)
+    #     q.run()
 
     if s==1:
-        testSequence1 = [0,10,1,11,2,12,3,13,4,14,5,15,6,16,7,17,8,18,9,19]
-        print assessOneCockroach(testSequence1)
-        print assessOneCockroach(range(10))
+        initializeCSO(10,10)
 
