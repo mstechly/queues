@@ -6,31 +6,21 @@ from CockroachLibrary import getPermutation
 from CockroachLibrary import numberOfSwaps
 
 numbersOfSimulationsForOneCockroach = 400
-timeOfSimulationForOneCockroach = 300
 
 class Cockroach():
 
     def __init__(self, fileID, size):
         self.size = size
         self.fileID = fileID
-        self.visual = int(size*0.75)
-        singleRow = [0]*self.size
-        self.matrix = [singleRow]*self.size
-        for i in range(self.size):
-            for j in range(self.size):
-                self.matrix[i][j]=random.random()
+        self.visual = int(size*0.6)
         self.value=-1
-        self.sequence = range(self.size)
+        self.sequence = random.sample(range(self.size),self.size)
+
 
     def actualizeCockroach(self):
-        self.asses()
-        self.getSequence()
-
-    def asses(self):
         cockroachFit = 0
-        self.sequence = self.getSequence()
         for i in range(numbersOfSimulationsForOneCockroach):
-            q = Sim(self.fileID,timeOfSimulationForOneCockroach, 0, 1, self.sequence)
+            q = Sim(self.fileID,0, 0, 1, self.sequence)
             simResult=q.run()
             cockroachFit += simResult
             # print cockroachFit / (i+1)
@@ -38,23 +28,8 @@ class Cockroach():
         self.value = cockroachFit/numbersOfSimulationsForOneCockroach
         return self.value
 
-    def getSequence(self):
-        sequence = []
-        singleRow = [0]*self.size
-        matrixCopy = [singleRow]*self.size
-        for i in range(self.size):
-            for j in range(self.size):
-                matrixCopy[i][j]=self.matrix[i][j]
-
-        for row in matrixCopy:
-            m=max(row)
-            maxPos=[i for i,j in enumerate(row) if j==m]
-            maxPos=maxPos[0]
-            sequence.append(maxPos)
-            for i in range(self.size):
-                matrixCopy[i][maxPos]=0
-        self.sequence = sequence
-        return sequence
+    def setSequence(self, givenSequence):
+        self.sequence = givenSequence
 
     def calculateDistance(self, secondCockroach):
         sequence1 = self.sequence
@@ -82,7 +57,7 @@ class Cockroach():
                 self.sequence[k] = elem2
                 self.sequence[pos] = elem1
             break
-        self.asses()
+        self.actualizeCockroach()
 
 
     def printCochroach(self, i):
@@ -99,6 +74,7 @@ def initializeCSO(fileID, numberOfCockroaches, numberOfIterations):
 
     listOfCockroaches = []
     listOfValues = [0]*numberOfCockroaches
+    print "Initialization"
     for i in range(numberOfCockroaches):
         newCockroach = Cockroach(fileID, numberOfCustomers)
         newCockroach.actualizeCockroach()
@@ -113,6 +89,7 @@ def initializeCSO(fileID, numberOfCockroaches, numberOfIterations):
         bestCockroachIndex = bestCockroachIndex[0]
         bestCockroach = listOfCockroaches[bestCockroachIndex]
 
+        print "Optimization start"
         for i in range(numberOfCockroaches):
 
             localBest = listOfCockroaches[i]
@@ -150,14 +127,15 @@ def initializeCSO(fileID, numberOfCockroaches, numberOfIterations):
             # givenCockroach.printCochroach(i)
 
 
-        print 'Iteration no.', iterationNumber
+        print '-----Iteration no.', iterationNumber, ' ------'
         print "Best Value: ", bestCockroach.value
+        bestCockroach.printCochroach(1);
 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description="A simulation of a queue.")
-    parser.add_argument('-T', action="store", dest="T", type=float, help='The overall simulation time', default=100)
+    parser.add_argument('-T', action="store", dest="T", type=float, help='The overall simulation time', default=0)
     parser.add_argument('-v', action="store", dest="verbose", type=int, help='Verbose', default=0)
     parser.add_argument('-s', action="store", dest="cockroachSimulation", type=int, help='Is it a simulation for the cockroaches.', default=0)
     parser.add_argument('-p', action="store", dest="permutation", type=list, help='Permutation of Cockroaches', default=[0])
@@ -176,5 +154,15 @@ if __name__ == '__main__':
         q.run()
 
     if s==1:
-        initializeCSO(f,100,10)
+        newCockroach1=Cockroach(3,12)
+        newCockroach1.setSequence(range(12))
+        newCockroach2=Cockroach(3,12)
+        newCockroach2.setSequence(range(11,-1,-1))
+        print "Worst Cockroach time is:"
+        print newCockroach1.actualizeCockroach()
+        print "Best Cockroach time is:"
+        print newCockroach2.actualizeCockroach()
+
+
+        initializeCSO(f,50,20)
 

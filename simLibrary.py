@@ -97,9 +97,14 @@ class Sim():
 
         for customer in self.customers:
             self.firstQueue.addCustomer(customer)
-
-        while t < self.T:
+        whileLoopCondition=True
+        while whileLoopCondition:
             t += 1
+            if self.T!=0:
+                whileLoopCondition = t<self.T
+            else:
+                whileLoopCondition = len(self.lastQueue.customers)!=len(self.routes)
+
             # self.verbose=False
             if self.verbose:
                 print "------ t=",t, "---------"
