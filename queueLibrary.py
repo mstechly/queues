@@ -40,7 +40,6 @@ class Customer():
     def printHistory(self):
         print(self.history)
 
-
 class Queue():
     def __init__(self, queueID, connectedServers):
         self.customers = []
@@ -67,7 +66,8 @@ class Queue():
             else:
                 self.historyCustomerAsKey[person.customerID] = 1
 
-        self.historyTAsKey[t] = self.customers
+
+        self.historyTAsKey[t] = len(self.customers)
 
         customersToDrop =[]
 

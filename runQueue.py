@@ -5,14 +5,15 @@ import random
 from CockroachLibrary import getPermutation
 from CockroachLibrary import numberOfSwaps
 
-numbersOfSimulationsForOneCockroach = 100
-timeOfSimulationForOneCockroach = 200
+numbersOfSimulationsForOneCockroach = 400
+timeOfSimulationForOneCockroach = 300
 
 class Cockroach():
 
-    def __init__(self, size):
+    def __init__(self, fileID, size):
         self.size = size
-        self.visual = 15
+        self.fileID = fileID
+        self.visual = int(size*0.75)
         singleRow = [0]*self.size
         self.matrix = [singleRow]*self.size
         for i in range(self.size):
@@ -29,9 +30,10 @@ class Cockroach():
         cockroachFit = 0
         self.sequence = self.getSequence()
         for i in range(numbersOfSimulationsForOneCockroach):
-            q = Sim(timeOfSimulationForOneCockroach, 0, 1, self.sequence)
+            q = Sim(self.fileID,timeOfSimulationForOneCockroach, 0, 1, self.sequence)
             simResult=q.run()
             cockroachFit += simResult
+            # print cockroachFit / (i+1)
 
         self.value = cockroachFit/numbersOfSimulationsForOneCockroach
         return self.value
@@ -82,21 +84,25 @@ class Cockroach():
             break
         self.asses()
 
-def initializeCSO(numberOfCockroaches, numberOfIterations):
-    routesFile=csv.reader(open("routes.csv","r"))
+
+    def printCochroach(self, i):
+        print "Cockroach: ", i
+        print "sequence", self.sequence
+        print "Value:", self.value
+
+def initializeCSO(fileID, numberOfCockroaches, numberOfIterations):
+    routesFile=csv.reader(open("routes"+str(fileID)+".csv","r"))
     numberOfCustomers=0
 
     for row in routesFile:
         numberOfCustomers+=1
-    print "customers:", numberOfCustomers
 
     listOfCockroaches = []
     listOfValues = [0]*numberOfCockroaches
     for i in range(numberOfCockroaches):
-        newCockroach = Cockroach(numberOfCustomers)
+        newCockroach = Cockroach(fileID, numberOfCustomers)
         newCockroach.actualizeCockroach()
         listOfCockroaches.append(newCockroach)
-
 
     for iterationNumber in range(numberOfIterations):
         for i in range(numberOfCockroaches):
@@ -134,20 +140,18 @@ def initializeCSO(numberOfCockroaches, numberOfIterations):
                     cockroach1.moveToward(localBest)
 
         for i in range(numberOfCockroaches):
-
-            randomCockroach = Cockroach(numberOfCustomers)
-            newCockroach.actualizeCockroach()
             givenCockroach = listOfCockroaches[i]
-            givenCockroach.moveToward(randomCockroach)
+            if random.random()>0.75:
+                randomCockroach = Cockroach(fileID, numberOfCustomers)
+                randomCockroach.actualizeCockroach()
+                givenCockroach.moveToward(randomCockroach)
             if givenCockroach.value<bestCockroach.value:
                 bestCockroach = givenCockroach
+            # givenCockroach.printCochroach(i)
 
 
         print 'Iteration no.', iterationNumber
         print "Best Value: ", bestCockroach.value
-
-
-
 
 
 if __name__ == '__main__':
@@ -157,17 +161,20 @@ if __name__ == '__main__':
     parser.add_argument('-v', action="store", dest="verbose", type=int, help='Verbose', default=0)
     parser.add_argument('-s', action="store", dest="cockroachSimulation", type=int, help='Is it a simulation for the cockroaches.', default=0)
     parser.add_argument('-p', action="store", dest="permutation", type=list, help='Permutation of Cockroaches', default=[0])
+    parser.add_argument('-f', action="store", dest="fileID", type=int, help='File ID', default=1)
+
 
     inputs = parser.parse_args()
     T = inputs.T
     v = inputs.verbose
     s = inputs.cockroachSimulation
     p = inputs.permutation
+    f = inputs.fileID
 
-    # if s==0:
-    #     q = Sim(T, v, s, p)
-    #     q.run()
+    if s==0:
+        q = Sim(f, T, v, s, p)
+        q.run()
 
     if s==1:
-        initializeCSO(10,10)
+        initializeCSO(f,100,10)
 
