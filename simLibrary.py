@@ -1,8 +1,6 @@
 from __future__ import division  # Simplify division
 
 import sys
-import time
-import random
 import csv
 
 from queueLibrary import Customer
@@ -13,7 +11,7 @@ from queueLibrary import getPoissonProb
 
 class Sim():
 
-    def __init__(self, T, verbose, cockroachSimulation, permutation):
+    def __init__(self, fileID, T, verbose, cockroachSimulation, permutation):
         self.T = T
         self.customers = []
         self.verbose = verbose
@@ -24,7 +22,7 @@ class Sim():
             self.permutation=permutation
 
         self.lastQueue =  Queue("Out",None)
-        networkFile=csv.reader(open("networkStructure.csv","r"))
+        networkFile=csv.reader(open("networkStructure"+str(fileID)+".csv","r"))
 
         self.listOfQueues=[]
         self.listOfServers=[]
@@ -42,7 +40,7 @@ class Sim():
         self.lastID = -1
 
         self.routes=[]
-        routesFile=csv.reader(open("routes.csv","r"))
+        routesFile=csv.reader(open("routes"+str(fileID)+".csv","r"))
         for row in routesFile:
             self.routes.append(self.getServers(row[0]))
 
@@ -132,9 +130,19 @@ class Sim():
     def getStatistics(self):
         for queue in self.listOfQueues:
             history = queue.historyCustomerAsKey
+            historyT = queue.historyTAsKey
+            totalTime = 0
+            totalLength = 0
+            for key in historyT.keys():
+                if historyT[key]!=0:
+                    totalTime +=1
+                    totalLength+=historyT[key]
+
             if len(history)>0:
                 averageWaitingTime = sum(history.values())/len(history)
+                averageLength = totalLength/totalTime
                 print "average time in queue ",queue.queueID, " : ", averageWaitingTime
+                print "average length of queue ", queue.queueID, " : ", averageLength
 
         for server in self.listOfServers:
             history = server.historyCustomerAsKey
