@@ -39,8 +39,9 @@ class Sim():
         self.firstQueue = self.listOfQueues[0]
         self.lastID = -1
 
-        self.routes=[]
+        self.routes = []
         routesFile=csv.reader(open("routes"+str(fileID)+".csv","r"))
+
         for row in routesFile:
             self.routes.append(self.getServers(row[0]))
 
