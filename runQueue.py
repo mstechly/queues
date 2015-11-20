@@ -4,7 +4,7 @@ import csv
 import random
 
 from CockroachLibrary import Cockroach
-from CockroachLibrary import runCSO
+from CockroachLibrary import CSO
 
 if __name__ == '__main__':
     import argparse
@@ -28,6 +28,6 @@ if __name__ == '__main__':
         q.run()
 
     if s==1:
-
-        runCSO(f,5,5)
+        swarm = CSO(f,5,5)
+        swarm.runCSO()
 

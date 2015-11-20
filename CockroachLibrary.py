@@ -81,42 +81,48 @@ class Cockroach():
         self.calculateFitness()
 
 
-    def printCochroach(self, i):
-        print "Cockroach: ", i
+    def printCochroach(self):
         print "sequence", self.sequence
         print "Fitness:", self.fitness
 
-def runCSO(fileID, numberOfCockroaches, numberOfIterations):
-    routesFile=csv.reader(open("routes"+str(fileID)+".csv","r"))
-    numberOfCustomers=0
+class CSO():
 
-    for row in routesFile:
-        numberOfCustomers+=1
+    def __init__(self, fileID, numberOfCockroaches, numberOfIterations):
+        self.fileID = fileID
+        self.numberOfCockroaches = numberOfCockroaches
+        self.numberOfIterations = numberOfIterations
 
-    listOfCockroaches = []
-    listOfValues = [0]*numberOfCockroaches
-    print "Initialization"
-    for i in range(numberOfCockroaches):
-        newCockroach = Cockroach(fileID, numberOfCustomers)
-        newCockroach.calculateFitness()
-        listOfCockroaches.append(newCockroach)
+        routesFile=csv.reader(open("routes"+str(fileID)+".csv","r"))
+        self.numberOfCustomers=0
 
-    for iterationNumber in range(numberOfIterations):
-        for i in range(numberOfCockroaches):
-            listOfValues[i]=listOfCockroaches[i].fitness
+        for row in routesFile:
+            self.numberOfCustomers+=1
 
-        bestValue = min(listOfValues)
-        bestCockroachIndex = [i for i,j in enumerate(listOfValues) if j==bestValue]
-        bestCockroachIndex = bestCockroachIndex[0]
-        bestCockroach = listOfCockroaches[bestCockroachIndex]
+        self.listOfCockroaches = []
+        self.listOfFitness = [0]*self.numberOfCockroaches
+        self.bestCockroach = None
+        # self.bestCockroach = new Cockroach(self.fileID, self.numberOfCustomers)
 
-        print "Optimization start"
-        for i in range(numberOfCockroaches):
+    def initialize(self):
+        for i in range(self.numberOfCockroaches):
+            newCockroach = Cockroach(self.fileID, self.numberOfCustomers)
+            newCockroach.calculateFitness()
+            self.listOfCockroaches.append(newCockroach)
 
-            localBest = listOfCockroaches[i]
-            cockroach1 = listOfCockroaches[i]
-            for j in range(numberOfCockroaches):
-                cockroach2 = listOfCockroaches[j]
+        for i in range(self.numberOfCockroaches):
+            self.listOfFitness[i]=self.listOfCockroaches[i].fitness
+
+        self.bestValue = min(self.listOfFitness)
+        self.bestCockroachIndex = [j for j,k in enumerate(self.listOfFitness) if k==self.bestValue]
+        self.bestCockroachIndex = self.bestCockroachIndex[0]
+        self.bestCockroach = self.listOfCockroaches[self.bestCockroachIndex]
+
+    def moveCockroaches(self):
+        for i in range(self.numberOfCockroaches):
+            localBest = self.listOfCockroaches[i]
+            cockroach1 = self.listOfCockroaches[i]
+            for j in range(self.numberOfCockroaches):
+                cockroach2 = self.listOfCockroaches[j]
                 if i!=j and cockroach1.checkIfSee(cockroach2):
                     if localBest.fitness>cockroach2.fitness:
                         localBest = cockroach2
@@ -125,29 +131,36 @@ def runCSO(fileID, numberOfCockroaches, numberOfIterations):
                 cockroach1.moveToward(localBest)
                 if cockroach1.fitness<localBest.fitness:
                     localBest = cockroach1
-                    for j in range(numberOfCockroaches):
-                        cockroach2 = listOfCockroaches[j]
+                    for j in range(self.numberOfCockroaches):
+                        cockroach2 = self.listOfCockroaches[j]
                         if i!=j and cockroach1.checkIfSee(cockroach2):
                             if localBest.fitness>cockroach2.fitness:
                                 localBest = cockroach2
 
-            if localBest==cockroach1 and cockroach1!=bestCockroach:
-                if cockroach1.fitness<bestCockroach.fitness:
-                    bestCockroach = localBest
+            if localBest==cockroach1 and cockroach1!=self.bestCockroach:
+                if cockroach1.fitness<self.bestCockroach.fitness:
+                    self.bestCockroach = localBest
                 else:
                     cockroach1.moveToward(localBest)
 
-        for i in range(numberOfCockroaches):
-            givenCockroach = listOfCockroaches[i]
+    def scatterCockroaches(self):
+        for i in range(self.numberOfCockroaches):
+            givenCockroach = self.listOfCockroaches[i]
             if random.random()>0.75:
-                randomCockroach = Cockroach(fileID, numberOfCustomers)
+                randomCockroach = Cockroach(self.fileID, self.numberOfCustomers)
                 randomCockroach.calculateFitness()
                 givenCockroach.moveToward(randomCockroach)
-            if givenCockroach.fitness<bestCockroach.fitness:
-                bestCockroach = givenCockroach
-            # givenCockroach.printCochroach(i)
+            if givenCockroach.fitness<self.bestCockroach.fitness:
+                self.bestCockroach = givenCockroach
 
+    def printBestCockroach(self):
+        self.bestCockroach.printCochroach()
 
-        print '-----Iteration no.', iterationNumber, ' ------'
-        print "Best Value: ", bestCockroach.fitness
-        bestCockroach.printCochroach(1);
+    def runCSO(self):
+        self.initialize()
+        for iterationNumber in range(self.numberOfIterations):
+            self.moveCockroaches()
+            self.scatterCockroaches()
+            print "Iteration no. ", iterationNumber
+            self.printBestCockroach()
+
