@@ -2,6 +2,8 @@ from __future__ import division  # Simplify division
 from simLibrary import Sim
 import csv
 import random
+import time
+import datetime
 
 from CockroachLibrary import Cockroach
 from CockroachLibrary import CSO
@@ -28,6 +30,12 @@ if __name__ == '__main__':
         q.run()
 
     if s==1:
-        swarm = CSO(f,5,5)
-        swarm.runCSO()
+        for fileIndex in range(1,5):
+            for swarmSize in range(10,101,10):
+                print "file: ", fileIndex, " size: ", swarmSize
+                ts = time.time()
+                print datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
+                swarm = CSO(fileIndex,swarmSize,15, True)
+                swarm.runCSO()
 
