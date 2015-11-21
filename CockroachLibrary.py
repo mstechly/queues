@@ -162,7 +162,7 @@ class CSO():
         self.bestCockroach.printCochroach()
 
     def runCSO(self):
-        resultFile=open('CSO/CSO'+str(self.fileID)+"_"+str(self.numberOfCockroaches)+"_"+str(self.numberOfIterations)+'.dat', 'w+')
+        resultFile=open('CSO/CSO_'+str(self.fileID)+"_0"+str(self.numberOfCockroaches)+"_"+str(self.numberOfIterations)+'.dat', 'w+')
         self.initialize()
         bestSameCounter = 0
         prevBest = self.bestCockroach.fitness
@@ -172,10 +172,9 @@ class CSO():
             self.moveCockroaches()
             self.scatterCockroaches()
             print "Iteration no. ", iterationNumber
-            # self.printBestCockroach()
             if self.printToFile:
                 for fit in self.listOfFitness:
-                    resultFile.write(str(fit)+", ")
+                    resultFile.write(str(fit)+" ")
                 resultFile.write("\n")
             if prevBest==self.bestCockroach.fitness:
                 bestSameCounter += 1
@@ -188,4 +187,4 @@ class CSO():
 
         resultFile.close()
         print "Best sequence: ", self.bestCockroach.sequence, "in ", lastIteration, " sequences"
-
+        return self.bestCockroach.sequence
