@@ -107,28 +107,31 @@ class Sim():
                 whileLoopCondition = len(self.lastQueue.customers)!=len(self.routes)
 
             # self.verbose=False
-            if self.verbose:
+            if self.verbose==1:
                 print "------ t=",t, "---------"
 
             for queue in self.listOfQueues:
-                if self.verbose:
+                if self.verbose==1:
                     queue.printQueueState()
                 queue.maintenance(t)
-                if self.verbose:
+                if self.verbose==1:
                     queue.printQueueState()
 
+            if self.verbose==2:
+                self.printCustomersForKubis()
+
             for server in self.listOfServers:
-                if self.verbose:
+                if self.verbose==1:
                     server.printServerState()
                 server.maintenance(t)
-                if self.verbose:
+                if self.verbose==1:
                     server.printServerState()
 
 
-            # if self.cockroachSimulation==0:
-                # self.printCustomersForKubis()
+            if self.verbose==2:
+                self.printCustomersForKubis()
 
-        if self.cockroachSimulation==0:
+        if self.cockroachSimulation==0 and self.verbose!=2:
             self.getStatistics()
         else:
             return self.getCockroachOutput()

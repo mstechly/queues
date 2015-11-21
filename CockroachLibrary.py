@@ -125,24 +125,26 @@ class CSO():
             for j in range(self.numberOfCockroaches):
                 cockroach2 = self.listOfCockroaches[j]
                 if i!=j and cockroach1.checkIfInVisual(cockroach2):
-                    if localBest.fitness>cockroach2.fitness:
+                    if cockroach2.fitness<localBest.fitness:
                         localBest = cockroach2
 
             if localBest!=cockroach1:
                 cockroach1.moveToward(localBest, self.numberOfSteps)
+                self.listOfFitness[i]=cockroach1.fitness
                 if cockroach1.fitness<localBest.fitness:
                     localBest = cockroach1
                     for j in range(self.numberOfCockroaches):
                         cockroach2 = self.listOfCockroaches[j]
                         if i!=j and cockroach1.checkIfInVisual(cockroach2):
-                            if localBest.fitness>cockroach2.fitness:
+                            if cockroach2.fitness<localBest.fitness:
                                 localBest = cockroach2
 
             if localBest==cockroach1 and cockroach1!=self.bestCockroach:
                 if cockroach1.fitness<self.bestCockroach.fitness:
-                    self.bestCockroach = localBest
+                    self.bestCockroach = cockroach1
                 else:
                     cockroach1.moveToward(localBest, self.numberOfSteps)
+                    self.listOfFitness[i]=cockroach1.fitness
 
     def scatterCockroaches(self):
         for i in range(self.numberOfCockroaches):
@@ -151,6 +153,8 @@ class CSO():
                 randomCockroach = Cockroach(self.fileID, self.numberOfCustomers)
                 randomCockroach.calculateFitness()
                 givenCockroach.moveToward(randomCockroach, 1)
+                givenCockroach.calculateFitness()
+                self.listOfFitness[i]=givenCockroach.fitness
             if givenCockroach.fitness<self.bestCockroach.fitness:
                 self.bestCockroach = givenCockroach
 
@@ -164,10 +168,10 @@ class CSO():
         prevBest = self.bestCockroach.fitness
         lastIteration = 0
         for iterationNumber in range(self.numberOfIterations):
-            lastIteration = iterationNumber
+            lastIteration = iterationNumber + 1
             self.moveCockroaches()
             self.scatterCockroaches()
-            # print "Iteration no. ", iterationNumber
+            print "Iteration no. ", iterationNumber
             # self.printBestCockroach()
             if self.printToFile:
                 for fit in self.listOfFitness:
@@ -178,8 +182,10 @@ class CSO():
             else:
                 bestSameCounter = 0
                 prevBest=self.bestCockroach.fitness
-            if bestSameCounter==3:
+            if bestSameCounter==5:
                 break
+
+
         resultFile.close()
         print "Best sequence: ", self.bestCockroach.sequence, "in ", lastIteration, " sequences"
 
