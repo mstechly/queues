@@ -91,7 +91,7 @@ class Sim():
     def printCustomersForKubis(self):
         for customer in self.customers:
             print "{"+str(customer.customerID)+","+str(customer.currentPlace)+"},",
-        print "\n"
+        print ""
 
     def run(self):
         t = 0
