@@ -44,7 +44,7 @@ class Cockroach():
             q = Sim(self.fileID,0, 0, 1, self.sequence)
             simResult=q.run()
             cockroachFit += simResult
-            # print cockroachFit / (i+1)
+
 
         self.fitness = cockroachFit/numbersOfSimulationsForOneCockroach
         return self.fitness
@@ -186,5 +186,5 @@ class CSO():
 
 
         resultFile.close()
-        print "Best sequence: ", self.bestCockroach.sequence, "in ", lastIteration, " sequences"
+        print "Best sequence: ", self.bestCockroach.sequence, "in ", lastIteration, " iterations"
         return self.bestCockroach.sequence

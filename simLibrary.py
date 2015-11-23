@@ -57,15 +57,12 @@ class Sim():
     def getQueues(self,list):
         list2=[]
         list=list.split(';')
-        # print list
         if list[0]=='-1':
-            # print("Queue last"+self.lastQueue.queueID)
             return [self.lastQueue]
         else:
             for i in list:
              for queue in self.listOfQueues:
                 if queue.queueID=="Q"+i:
-                    # print("Queue "+queue.queueID)
                     list2.append(queue)
         return list2
 
@@ -76,7 +73,6 @@ class Sim():
             for server in self.listOfServers:
                 if server.serverID=="S"+i:
                     list2.append(server)
-                    # print("Server "+server.serverID)
         return list2
 
     def newCustomer(self, route):
@@ -88,7 +84,7 @@ class Sim():
         sys.stdout.write('\r%.2f%% of simulation completed (t=%s of %s)\n' % (100 * t/self.T, t, self.T))
         sys.stdout.flush()
 
-    def printCustomersForKubis(self):
+    def printCustomersForGUI(self):
         for customer in self.customers:
             print "{"+str(customer.customerID)+","+str(customer.currentPlace)+"},",
         print ""
@@ -106,7 +102,6 @@ class Sim():
             else:
                 whileLoopCondition = len(self.lastQueue.customers)!=len(self.routes)
 
-            # self.verbose=False
             if self.verbose==1:
                 print "------ t=",t, "---------"
 
@@ -118,7 +113,7 @@ class Sim():
                     queue.printQueueState()
 
             if self.verbose==2:
-                self.printCustomersForKubis()
+                self.printCustomersForGUI()
 
             for server in self.listOfServers:
                 if self.verbose==1:
@@ -129,7 +124,7 @@ class Sim():
 
 
             if self.verbose==2:
-                self.printCustomersForKubis()
+                self.printCustomersForGUI()
 
         if self.cockroachSimulation==0 and self.verbose!=2:
             self.getStatistics()

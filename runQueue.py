@@ -30,17 +30,9 @@ if __name__ == '__main__':
         q.run()
 
     if s==1:
-        for fileIndex in [2]:
-            numberOfIterations = 20
-            seqFile=open('CSO/seq_'+str(fileIndex)+"_"+str(numberOfIterations)+'.dat', 'w+')
-            for swarmSize in range(10,101,10):
-                print "file: ", fileIndex, " size: ", swarmSize
-                ts = time.time()
-                print datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        ts = time.time()
+        print datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
 
-                swarm = CSO(fileIndex,swarmSize,numberOfIterations, True)
-                result = swarm.runCSO()
-                for elem in result:
-                    seqFile.write(str(elem)+" ")
-                seqFile.write("\n")
-            seqFile.close()
+        swarm = CSO(f,50, 15, True)
+        result = swarm.runCSO()
+
