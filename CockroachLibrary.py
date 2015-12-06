@@ -37,7 +37,6 @@ class Cockroach():
         self.fitness=-1
         self.visual = int(size*0.6)
 
-
     def calculateFitness(self):
         cockroachFit = 0
         for i in range(numbersOfSimulationsForOneCockroach):
@@ -79,7 +78,6 @@ class Cockroach():
                     break
 
         self.calculateFitness()
-
 
     def printCochroach(self):
         print "sequence", self.sequence
